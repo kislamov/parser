@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import openpyxl
 
-URL = 'http://pulser.kz/?grpsub=106423'
+URL = 'https://weather.com/ru-RU/weather/hourbyhour/l/78eac41c89ce940fa938848cf6deee49e840d217a3c2427ceaaae24d4888b9dbbc0ac17bdebe7c6db341e77385fb90e0'
 HEADERS = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
             }
@@ -16,44 +16,47 @@ def get_html(url, params=None):
 
 def get_content(html):
     soup = BeautifulSoup(html, 'html.parser')
-    items = soup.find_all('div', class_='productBlock')
-
-    pulser = [ ]
+    items = soup.find_all('div', class_='DaypartDetails--DetailSummaryContent--1c28m Disclosure--SummaryDefault--1z_mF')
+    # print(items)
+    forecast = []
     for item in items:
-        pulser.append({
-            'title': item.find('span', class_='brandTop').get_text(),
-            'description': item.find('h2').get_text(strip=True).replace('\xad', ''),
-            'price': item.find('dd', class_='dark').find_next('dd').get_text().replace('\n', ''),
-            'link': HOST + item.find('a').get('href')
+        forecast.append({
+            'hour': item.find('h2', class_='DetailsSummary--daypartName--1Mebr').text,
+            'temp': item.find('span', class_='DetailsSummary--tempValue--RcZzi').text,
+            'condition': item.find('span', class_='DetailsSummary--extendedData--aaFeV').text,
+            'probability': item.find('div', class_='DetailsSummary--precip--2ARnx').find_next('span').text,
+            'wind': item.find('span', class_='Wind--windWrapper--1Va1P undefined').text
         })
-    del pulser[ 0 ]
-    return pulser
+    # print(forecast)
+    # print(len(forecast))
+    return forecast
 
 
 def parse():
     html = get_html(URL)
     if html.status_code == 200:
-        pulser = get_content(html.text)
-        to_xlsx(pulser)
+        forecast = get_content(html.text)
+        to_xlsx(forecast)
+
     else:
         print('Error!')
 
 
-def to_xlsx(pulser):
+def to_xlsx(forecast):
     book = openpyxl.Workbook()
     sheet = book.active
-    sheet['A1'] = 'NAME'
-    sheet['B1'] = 'DESCRIPTION'
-    sheet['C1'] = 'PRICE'
-    sheet['D1'] = 'LINK'
+    sheet['A1'] = 'hour'
+    sheet['B1'] = 'temp'
+    sheet['C1'] = 'condition'
+    sheet['D1'] = 'probability'
     row = 2
-    for i in pulser:
-        sheet[row][0].value = i['title']
-        sheet[row][1].value = i['description']
-        sheet[row][2].value = i['price']
-        sheet[row][3].value = i['link']
+    for i in forecast:
+        sheet[row][0].value = i['hour']
+        sheet[row][1].value = i['temp']
+        sheet[row][2].value = i['condition']
+        sheet[row][3].value = i['probability']
         row += 1
-    book.save('pc_list.xlsx')
+    book.save('forecasting.xlsx')
 
 
 parse()

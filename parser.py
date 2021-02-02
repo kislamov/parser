@@ -9,16 +9,40 @@ HEADERS = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Ge
 HOST = 'http://pulser.kz/'
 
 
+stations = {
+    'карасайский': 'karasaysky',
+    'байыркум': 'baiyrkum',
+    'державинск': 'derzhavinsk',
+    'токмансай': 'tokmansai',
+    'илийский': 'iliysky',
+    'егиндыбулак': 'egindybulak',
+    'аккудук': 'akkuduk',
+    'бестобе': 'bestobe',
+    'ерейментау': 'ereimentau',
+    'степное': 'stepnoe',
+    'жансугуров': 'zhansugurov',
+    'коныролен': 'konyrolen',
+    'исатай': 'isatai',
+    'макат': 'makat',
+}
+
+
 def get_html(url, params=None):
     r = requests.get(url, headers=HEADERS, params=params)
     return r
+
+
+def get_location(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    location = soup.find('span', class_='LocationPageTitle--PresentationName--Injxu').text
+    return location
 
 
 def get_content(html):
     soup = BeautifulSoup(html, 'html.parser')
     items = soup.find_all('div', class_='DaypartDetails--DetailSummaryContent--1c28m Disclosure--SummaryDefault--1z_mF')
     # print(items)
-    forecast = []
+    forecast = [ ]
     for item in items:
         forecast.append({
             'hour': item.find('h2', class_='DetailsSummary--daypartName--1Mebr').text,
@@ -36,27 +60,28 @@ def parse():
     html = get_html(URL)
     if html.status_code == 200:
         forecast = get_content(html.text)
-        to_xlsx(forecast)
-
+        location = get_location(html.text).split(',')
+        if location[0].lower() in stations:
+            to_xlsx(forecast, stations[location[0].lower()])
     else:
         print('Error!')
 
 
-def to_xlsx(forecast):
+def to_xlsx(forecast, location):
     book = openpyxl.Workbook()
     sheet = book.active
-    sheet['A1'] = 'hour'
-    sheet['B1'] = 'temp'
-    sheet['C1'] = 'condition'
-    sheet['D1'] = 'probability'
+    sheet[ 'A1' ] = 'Время'
+    sheet[ 'B1' ] = 'Температура'
+    sheet[ 'C1' ] = 'Состояние погоды'
+    sheet[ 'D1' ] = 'Вероятность осадков'
     row = 2
     for i in forecast:
-        sheet[row][0].value = i['hour']
-        sheet[row][1].value = i['temp']
-        sheet[row][2].value = i['condition']
-        sheet[row][3].value = i['probability']
+        sheet[ row ][ 0 ].value = i[ 'hour' ]
+        sheet[ row ][ 1 ].value = i[ 'temp' ]
+        sheet[ row ][ 2 ].value = i[ 'condition' ]
+        sheet[ row ][ 3 ].value = i[ 'probability' ]
         row += 1
-    book.save('forecasting.xlsx')
+    book.save(f'{location}.xlsx')
 
 
 parse()

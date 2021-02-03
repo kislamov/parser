@@ -1,47 +1,34 @@
-import requests
+import errno
+import os
+
 from bs4 import BeautifulSoup
 import openpyxl
-from datetime import datetime
+from datetime import date
 
-URL = 'https://weather.com/ru-RU/weather/hourbyhour/l/91fc832467e02603d03bbbb6082d330bcd1f1cf7997e3354cfc84cb3446443f8'
-HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0',
-           'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-           }
 
 stations = {
     'карасайский': 'karasaysky',
-    'баиркум': 'baiyrkum',
+    'байыркум': 'baiyrkum',
     'державинск': 'derzhavinsk',
     'токмансай': 'tokmansai',
     'илийский': 'iliysky',
-    'егиндыбулак, карагандинская': 'egindybulak',
-    'аккудук': 'akkuduk',
-    'бестобе, акмолинская': 'bestobe',
+    'егиндыбулак, караганда': 'egindybulak',
+    'бестобе, акмолинск': 'bestobe',
     'ерейментау': 'ereimentau',
-    'степное': 'stepnoe',
+    'степное, актюб': 'stepnoe',
     'жансугуров': 'zhansugurov',
     'коныролен': 'konyrolen',
-    'исатай': 'isatai',
-    'макат': 'makat',
+    'исатай, атырау': 'isatai',
+    'макат, атырау': 'makat',
 }
 
-
-def get_html(url, params=None):
-    r = requests.get(url, headers=HEADERS, params=params)
-    return r
-
-
-def get_location(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    location = soup.find('span', class_='LocationPageTitle--PresentationName--Injxu').text
-    return location
 
 
 def get_content(html):
     soup = BeautifulSoup(html, 'html.parser')
     items = soup.find_all('div', class_='DaypartDetails--DetailSummaryContent--1c28m Disclosure--SummaryDefault--1z_mF')
     # print(items)
-    forecast = []
+    forecast = [ ]
     for item in items:
         forecast.append({
             'hour': item.find('h2', class_='DetailsSummary--daypartName--1Mebr').text,
@@ -53,11 +40,11 @@ def get_content(html):
         })
 
     for i in forecast:
-        for j in i['wind']:
+        for j in i[ 'wind' ]:
             if j in ' СЮЗВ':
-                i['wind'] = i['wind'].replace(j, '')
+                i[ 'wind' ] = i[ 'wind' ].replace(j, '')
 
-        i['wind'] = round(int(i['wind']) * 1000 / 3600, 2)
+        i[ 'wind' ] = round(int(i[ 'wind' ]) * 1000 / 3600, 2)
 
     # print(forecast)
     # print(len(forecast))
@@ -65,33 +52,31 @@ def get_content(html):
 
 
 def parse():
-    html = get_html(URL)
-    if html.status_code == 200:
-        forecast = get_content(html.text)
-        location = get_location(html.text).split(',')
-        if location[0].lower() in stations:
-            to_xlsx(forecast, stations[location[0].lower()])
-    else:
-        print('Error!')
+    day = date.today().strftime("%d_%m_%y")
+    for station in stations:
+        with open(f'analysis_03_02_21/{stations[ station ]}_weathercom.html', 'r', encoding='utf-8') as file:
+            result = get_content(file.read())
+        to_xlsx(result, f'result_{day}/{stations[station]}.xlsx')
 
 
-def to_xlsx(forecast, location):
+def to_xlsx(forecast, filename):
     book = openpyxl.Workbook()
     sheet = book.active
-    sheet['A1'] = 'Время, часы'
-    sheet['B1'] = 'Температура, °C'
-    sheet['C1'] = 'Вероятность осадков, %'
-    sheet['D1'] = 'Скорость ветра, м/c'
-    sheet['E1'] = 'Состояние погоды'
+    sheet[ 'A1' ] = 'Время, часы'
+    sheet[ 'B1' ] = 'Температура, °C'
+    sheet[ 'C1' ] = 'Вероятность осадков, %'
+    sheet[ 'D1' ] = 'Скорость ветра, м/c'
+    sheet[ 'E1' ] = 'Состояние погоды'
     row = 2
     for i in forecast:
-        sheet[row][0].value = i['hour']
-        sheet[row][1].value = i['temp']
-        sheet[row][2].value = i['probability']
-        sheet[row][3].value = i['wind']
-        sheet[row][4].value = i['condition']
+        sheet[ row ][ 0 ].value = i[ 'hour' ]
+        sheet[ row ][ 1 ].value = i[ 'temp' ]
+        sheet[ row ][ 2 ].value = i[ 'probability' ]
+        sheet[ row ][ 3 ].value = i[ 'wind' ]
+        sheet[ row ][ 4 ].value = i[ 'condition' ]
         row += 1
-    book.save(f'{location}.xlsx')
+
+    book.save(f'{filename}.xlsx')
     book.close()
 
 

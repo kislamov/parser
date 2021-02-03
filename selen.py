@@ -15,6 +15,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from datetime import date
 
+
 stations = {
     'карасайский': 'karasaysky',
     'байыркум': 'baiyrkum',
@@ -22,14 +23,13 @@ stations = {
     'токмансай': 'tokmansai',
     'илийский': 'iliysky',
     'егиндыбулак, караганда': 'egindybulak',
-    'аккудук': 'akkuduk',
-    'бестобе': 'bestobe',
+    'бестобе, акмолинск': 'bestobe',
     'ерейментау': 'ereimentau',
-    'степное': 'stepnoe',
+    'степное, актюб': 'stepnoe',
     'жансугуров': 'zhansugurov',
     'коныролен': 'konyrolen',
-    'исатай': 'isatai',
-    'макат': 'makat',
+    'исатай, атырау': 'isatai',
+    'макат, атырау': 'makat',
 }
 
 
@@ -78,6 +78,14 @@ def parse_station(station_name='карасайский'):
 
     sleep(3 + rnd())
 
+    forecast_btn = get_button('a.styles--listItem--2JY_Z:nth-child(2) > span:nth-child(1)', By.CSS_SELECTOR)
+
+    sleep(1 + rnd())
+
+    forecast_btn.click()
+
+    sleep(5 + rnd())
+
     query_btn = get_button('LocationSearch_input', By.ID)
 
     sleep(rnd())
@@ -93,59 +101,7 @@ def parse_station(station_name='карасайский'):
 
     sleep(3 + rnd())
 
-    forecast_btn = get_button('a.styles--listItem--2JY_Z:nth-child(2) > span:nth-child(1)', By.CSS_SELECTOR)
-
-    sleep(1 + rnd())
-
-    forecast_btn.click()
-
-    sleep(5 + rnd())
     save_html(filename=filename, html_to_save=driver.page_source)
-    # button.submit()
-
-    # # sleep(5 + rnd())
-    # # forecast_btn = driver.find_element_by_css_selector('#station-detail-box > div')
-    # forecast_btn = get_button('#station-detail-box > div', By.CSS_SELECTOR)
-    # forecast_btn.click()
-    #
-    # sleep(5 + rnd())
-    # onehour_btn = get_button('/html/body/div[4]/div[1]/div[5]/div[1]', By.XPATH)
-    # onehour_btn = driver.find_element_by_xpath('/html/body/div[4]/div[1]/div[5]/div[1]')
-    #
-    # if 'off' in onehour_btn.get_attribute('class'):
-    #     onehour_btn.click()
-    #
-    # # ECMFW
-    # # ecmwf_btn = driver.find_element_by_xpath('/html/body/div[4]/div[1]/div[5]/div[3]/div[1]')
-    # ecmwf_btn = get_button('/html/body/div[4]/div[1]/div[5]/div[3]/div[1]', By.XPATH)
-    # ecmwf_btn.click()
-    #
-    # sleep(5 + rnd())
-    # save_html(filename=filename.format(model='ecmwf'), html_to_save=driver.page_source)
-    #
-    # # GFS
-    # # gfs_btn = driver.find_element_by_xpath('/html/body/div[4]/div[1]/div[5]/div[3]/div[2]')
-    # gfs_btn = get_button('/html/body/div[4]/div[1]/div[5]/div[3]/div[2]', By.XPATH)
-    # gfs_btn.click()
-    #
-    # sleep(5 + rnd())
-    # save_html(filename=filename.format(model='gfs'), html_to_save=driver.page_source)
-    #
-    # # ICON
-    # # icon_btn = driver.find_element_by_xpath('/html/body/div[4]/div[1]/div[5]/div[3]/div[3]')
-    # icon_btn = get_button('/html/body/div[4]/div[1]/div[5]/div[3]/div[3]', By.XPATH)
-    # icon_btn.click()
-    #
-    # sleep(5 + rnd())
-    # save_html(filename=filename.format(model='icon'), html_to_save=driver.page_source)
-    #
-    # # METEOBLUE
-    # # meteoblue_btn = driver.find_element_by_xpath('/html/body/div[4]/div[1]/div[5]/div[3]/div[4]')
-    # meteoblue_btn = get_button('/html/body/div[4]/div[1]/div[5]/div[3]/div[4]', By.XPATH)
-    # meteoblue_btn.click()
-    #
-    # sleep(5 + rnd())
-    # save_html(filename=filename.format(model='meteoblue'), html_to_save=driver.page_source)
 
 
 def save_html(filename, html_to_save):

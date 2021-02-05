@@ -1,10 +1,8 @@
 import errno
-import os
-
-from bs4 import BeautifulSoup
-import openpyxl
 from datetime import date
-
+import os, os.path
+import openpyxl
+from bs4 import BeautifulSoup
 
 stations = {
     'карасайский': 'karasaysky',
@@ -22,13 +20,16 @@ stations = {
     'макат, атырау': 'makat',
 }
 
+day = date.today().strftime("%d_%m_%y")
+
+os.makedirs(f'result_{day}')
 
 
 def get_content(html):
     soup = BeautifulSoup(html, 'html.parser')
     items = soup.find_all('div', class_='DaypartDetails--DetailSummaryContent--1c28m Disclosure--SummaryDefault--1z_mF')
     # print(items)
-    forecast = [ ]
+    forecast = []
     for item in items:
         forecast.append({
             'hour': item.find('h2', class_='DetailsSummary--daypartName--1Mebr').text,
@@ -40,11 +41,11 @@ def get_content(html):
         })
 
     for i in forecast:
-        for j in i[ 'wind' ]:
+        for j in i['wind']:
             if j in ' СЮЗВ':
-                i[ 'wind' ] = i[ 'wind' ].replace(j, '')
+                i['wind'] = i['wind'].replace(j, '')
 
-        i[ 'wind' ] = round(int(i[ 'wind' ]) * 1000 / 3600, 2)
+        i['wind'] = round(int(i['wind']) * 1000 / 3600, 2)
 
     # print(forecast)
     # print(len(forecast))
@@ -52,31 +53,32 @@ def get_content(html):
 
 
 def parse():
-    day = date.today().strftime("%d_%m_%y")
     for station in stations:
-        with open(f'analysis_03_02_21/{stations[ station ]}_weathercom.html', 'r', encoding='utf-8') as file:
+        with open(f'analysis_{day}/{stations[station]}_weathercom.html', 'r', encoding='utf-8') as file:
             result = get_content(file.read())
-        to_xlsx(result, f'result_{day}/{stations[station]}.xlsx')
+        to_xlsx(result, f'{stations[station]}_weathercom.xlsx')
 
 
 def to_xlsx(forecast, filename):
     book = openpyxl.Workbook()
     sheet = book.active
-    sheet[ 'A1' ] = 'Время, часы'
-    sheet[ 'B1' ] = 'Температура, °C'
-    sheet[ 'C1' ] = 'Вероятность осадков, %'
-    sheet[ 'D1' ] = 'Скорость ветра, м/c'
-    sheet[ 'E1' ] = 'Состояние погоды'
-    row = 2
+    sheet['A1'] = f"{'/'.join(day.split('_'))} + 2-e суток"
+    sheet['A2'] = 'Время, часы'
+    sheet['B2'] = 'Температура, °C'
+    sheet['C2'] = 'Вероятность осадков, %'
+    sheet['D2'] = 'Скорость ветра, м/c'
+    sheet['E2'] = 'Состояние погоды'
+    row = 3
     for i in forecast:
-        sheet[ row ][ 0 ].value = i[ 'hour' ]
-        sheet[ row ][ 1 ].value = i[ 'temp' ]
-        sheet[ row ][ 2 ].value = i[ 'probability' ]
-        sheet[ row ][ 3 ].value = i[ 'wind' ]
-        sheet[ row ][ 4 ].value = i[ 'condition' ]
+        sheet[row][0].value = i['hour']
+        sheet[row][1].value = i['temp']
+        sheet[row][2].value = i['probability']
+        sheet[row][3].value = i['wind']
+        sheet[row][4].value = i['condition']
         row += 1
+    print(f'saving {filename}')
 
-    book.save(f'{filename}.xlsx')
+    book.save(f'result_{day}/{filename}')
     book.close()
 
 

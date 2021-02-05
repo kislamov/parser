@@ -15,7 +15,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from datetime import date
 
-
 stations = {
     'карасайский': 'karasaysky',
     'байыркум': 'baiyrkum',
@@ -63,7 +62,7 @@ else:
 #     pass
 
 
-driver.get("https://weather.com/ru-RU")
+driver.get("https://weather.com/ru-RU/")
 
 
 def get_button(key, by_=By.ID) -> WebElement:
@@ -92,11 +91,14 @@ def parse_station(station_name='карасайский'):
 
     query_btn.click()
 
+    sleep(rnd())
+
     for i in station_name:
         query_btn.send_keys(i)
         sleep(rnd())
 
     sleep(2 + rnd())
+
     query_btn.send_keys(Keys.ENTER)
 
     sleep(3 + rnd())

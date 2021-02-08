@@ -16,19 +16,19 @@ from selenium.webdriver.remote.webelement import WebElement
 from datetime import date
 
 stations = {
-    'карасайский': 'karasaysky',
-    'байыркум': 'baiyrkum',
-    'державинск': 'derzhavinsk',
-    'токмансай': 'tokmansai',
-    'илийский': 'iliysky',
-    'егиндыбулак, караганда': 'egindybulak',
-    'бестобе, акмолинск': 'bestobe',
-    'ерейментау': 'ereimentau',
-    'степное, актюб': 'stepnoe',
-    'жансугуров': 'zhansugurov',
-    'коныролен': 'konyrolen',
-    'исатай, атырау': 'isatai',
-    'макат, атырау': 'makat',
+    'карасайский':'karasaysky',
+    'байыркум':'baiyrkum',
+    'державинск':'derzhavinsk',
+    'токмансай':'tokmansai',
+    'илийский':'iliysky',
+    'егиндыбулак, караганда':'egindybulak',
+    'бестобе, акмолинск':'bestobe',
+    'ерейментау':'ereimentau',
+    'степное, актюб':'stepnoe',
+    'жансугуров':'zhansugurov',
+    'коныролен':'konyrolen',
+    'исатай':'isatai',
+    'макат, атырау':'makat',
 }
 
 
@@ -62,7 +62,7 @@ else:
 #     pass
 
 
-driver.get("https://weather.com/ru-RU/")
+driver.get("https://weather.com/ru-RU")
 
 
 def get_button(key, by_=By.ID) -> WebElement:
@@ -93,17 +93,29 @@ def parse_station(station_name='карасайский'):
 
     sleep(rnd())
 
-    for i in station_name:
-        query_btn.send_keys(i)
+    if station_name == 'исатай':
+        sleep(2 + rnd())
+        for i in station_name:
+            query_btn.send_keys(i)
+            sleep(rnd())
         sleep(rnd())
+        alt_btn = get_button('LocationSearch_listbox-3', By.ID)
+        sleep(1 + rnd())
+        alt_btn.click()
+        sleep(3 + rnd())
 
-    sleep(2 + rnd())
+        save_html(filename=filename, html_to_save=driver.page_source)
+    else:
+        for i in station_name:
+            query_btn.send_keys(i)
+            sleep(rnd())
 
-    query_btn.send_keys(Keys.ENTER)
+        sleep(2 + rnd())
+        query_btn.send_keys(Keys.ENTER)
 
-    sleep(3 + rnd())
+        sleep(3 + rnd())
 
-    save_html(filename=filename, html_to_save=driver.page_source)
+        save_html(filename=filename, html_to_save=driver.page_source)
 
 
 def save_html(filename, html_to_save):

@@ -47,7 +47,7 @@ def get_content(html):
 
         i['wind'] = round(int(i['wind']) * 1000 / 3600, 2)
 
-    # print(forecast)
+
     # print(len(forecast))
     return forecast
 

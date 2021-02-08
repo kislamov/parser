@@ -16,19 +16,19 @@ from selenium.webdriver.remote.webelement import WebElement
 from datetime import date
 
 stations = {
-    'карасайский':'karasaysky',
-    'байыркум':'baiyrkum',
-    'державинск':'derzhavinsk',
-    'токмансай':'tokmansai',
-    'илийский':'iliysky',
-    'егиндыбулак, караганда':'egindybulak',
-    'бестобе, акмолинск':'bestobe',
-    'ерейментау':'ereimentau',
-    'степное, актюб':'stepnoe',
-    'жансугуров':'zhansugurov',
-    'коныролен':'konyrolen',
-    'исатай':'isatai',
-    'макат, атырау':'makat',
+    'карасайский': 'karasaysky',
+    'байыркум': 'baiyrkum',
+    'державинск': 'derzhavinsk',
+    'токмансай': 'tokmansai',
+    'илийский': 'iliysky',
+    'егиндыбулак, караганда': 'egindybulak',
+    'бестобе, акмолинск': 'bestobe',
+    'ерейментау': 'ereimentau',
+    'степное, актюб': 'stepnoe',
+    'жансугуров': 'zhansugurov',
+    'коныролен': 'konyrolen',
+    'исатай': 'isatai',
+    'макат, атырау': 'makat',
 }
 
 
